@@ -2,6 +2,15 @@ const usersRepository = require('./users-repository');
 const { hashPassword } = require('../../../utils/password');
 
 /**
+ * fungsi pengecekan email
+ * @param {string} email - Email
+ * @returns {boolean}
+ */
+async function isEmailTaken(email) {
+  return usersRepository.isEmailTaken(email);
+}
+
+/**
  * Get list of users
  * @returns {Array}
  */
@@ -49,6 +58,12 @@ async function getUser(id) {
  * @returns {boolean}
  */
 async function createUser(name, email, password) {
+  //cek email sudah ada atau belum
+  const EmailExists = await isEmailTaken(email);
+  if (EmailExists) {
+    throw new errorTypes.EMAIL_ALREADY_TAKEN('EMAIL_ALREADY_TAKEN');
+  }
+
   // Hash password
   const hashedPassword = await hashPassword(password);
 
@@ -113,4 +128,5 @@ module.exports = {
   createUser,
   updateUser,
   deleteUser,
+  isEmailTaken,
 };

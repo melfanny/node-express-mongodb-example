@@ -62,10 +62,21 @@ async function deleteUser(id) {
   return User.deleteOne({ _id: id });
 }
 
+/**
+ * fungsi pengecekan email
+ * @param {string} email - Email
+ * @returns {Promise}
+ */
+async function isEmailTaken(email) {
+  const user = await User.findOne({ email: email });
+  return user !== null && user !== undefined;
+}
+
 module.exports = {
   getUsers,
   getUser,
   createUser,
   updateUser,
   deleteUser,
+  isEmailTaken,
 };

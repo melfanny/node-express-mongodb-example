@@ -1,6 +1,5 @@
 const usersService = require('./users-service');
 const { errorResponder, errorTypes } = require('../../../core/errors');
-
 /**
  * Handle get list of users request
  * @param {object} request - Express request object
@@ -50,6 +49,14 @@ async function createUser(request, response, next) {
     const name = request.body.name;
     const email = request.body.email;
     const password = request.body.password;
+
+    const emailTaken = await usersService.isEmailTaken(email);
+    if (emailTaken) {
+      throw errorResponder(
+        errorTypes.EMAIL_ALREADY_TAKEN,
+        'EMAIL_ALREADY_TAKEN'
+      );
+    }
 
     const success = await usersService.createUser(name, email, password);
     if (!success) {
