@@ -49,7 +49,19 @@ async function createUser(request, response, next) {
     const name = request.body.name;
     const email = request.body.email;
     const password = request.body.password;
+    const password_confirm = request.body.password_confirm;
 
+    //memastikan password tidak kosong
+    if (!password || !password_confirm) {
+      throw errorResponder(errorTypes.INVALID_PASSWORD, 'Invalid password');
+    }
+
+    //memastikan password dan confirm password sama/sesuai
+    if (password != password_confirm) {
+      throw errorResponder(errorTypes.INVALID_PASSWORD, 'Invalid password');
+    }
+
+    //memanggil fungsi untuk mengecek email
     const emailTaken = await usersService.isEmailTaken(email);
     if (emailTaken) {
       throw errorResponder(
