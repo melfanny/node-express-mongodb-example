@@ -1,5 +1,6 @@
 const usersRepository = require('./users-repository');
 const { hashPassword } = require('../../../utils/password');
+const { errorTypes } = require('../../../core/errors');
 
 /**
  * fungsi pengecekan email
@@ -61,7 +62,7 @@ async function getUser(id) {
 async function createUser(name, email, password, password_confirm) {
   //cek apakah password dan password confirm sama
   if (password != password_confirm) {
-    throw errorResponder(errrorTypes.INVALID_PASSWORD, 'password_confirm');
+    throw errorResponder(errorTypes.INVALID_PASSWORD, 'INVALID_PASSWORD');
   }
   //cek email sudah ada atau belum
   const EmailExists = await isEmailTaken(email);
