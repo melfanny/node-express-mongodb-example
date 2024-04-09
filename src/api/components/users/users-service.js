@@ -1,5 +1,5 @@
 const usersRepository = require('./users-repository');
-const { hashPassword } = require('../../../utils/password');
+const { passwordMatched, hashPassword } = require('../../../utils/password');
 const { errorTypes } = require('../../../core/errors');
 
 /**
@@ -62,7 +62,7 @@ async function getUser(id) {
 async function createUser(name, email, password, password_confirm) {
   //cek apakah password dan password confirm sama
   if (password != password_confirm) {
-    throw errorResponder(errorTypes.INVALID_PASSWORD, 'INVALID_PASSWORD');
+    throw new Error('INVALID_PASSWORD');
   }
   //cek email sudah ada atau belum
   const EmailExists = await isEmailTaken(email);
@@ -128,6 +128,44 @@ async function deleteUser(id) {
   return true;
 }
 
+/**
+ * Change user password
+ * @param {string} id - User ID
+ * @param {string} oldPassword - Old password
+ * @param {string} newPassword - New password
+ * @param {string} confirmPassword - Confirm new password
+ * @returns {boolean}
+ */
+async function changePassword(id, oldPassword, newPassword, confirmPassword) {
+  // Validasi apakah newPassword dan confirmPassword sama
+  if (newPassword !== confirmPassword) {
+    throw new errorTypes.INVALID_PASSWORD_CONFIRMATION(
+      'Passwords do not match.'
+    );
+  }
+
+  const user = await usersRepository.getUser(id);
+
+  // User not found
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  // Periksa apakah oldPassword cocok dengan password yang ada di database
+  const ispasswordMatched = await passwordMatched(oldPassword, user.password);
+  if (!ispasswordMatched) {
+    throw new Error('Old password is incorrect');
+  }
+
+  // Hash newPassword dan update di database
+  const hashedNewPassword = await hashPassword(newPassword);
+  try {
+    await usersRepository.updateUserPassword(id, hashedNewPassword);
+    return true;
+  } catch (err) {
+    throw err;
+  }
+}
 module.exports = {
   getUsers,
   getUser,
@@ -135,4 +173,5 @@ module.exports = {
   updateUser,
   deleteUser,
   isEmailTaken,
+  changePassword,
 };

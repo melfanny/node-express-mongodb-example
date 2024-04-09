@@ -70,7 +70,12 @@ async function createUser(request, response, next) {
       );
     }
 
-    const success = await usersService.createUser(name, email, password);
+    const success = await usersService.createUser(
+      name,
+      email,
+      password,
+      password_confirm
+    );
     if (!success) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
@@ -135,6 +140,47 @@ async function deleteUser(request, response, next) {
     return next(error);
   }
 }
+/**
+ * Handle change user password request
+ * @param {object} request - Express request object
+ * @param {object} response - Express response object
+ * @param {object} next - Express route middlewares
+ * @returns {object} Response object or pass an error to the next route
+ */
+async function changePassword(request, response, next) {
+  try {
+    const id = request.params.id; // Mengambil ID pengguna dari parameter URL
+    const { newPassword, confirmPassword, oldPassword } = request.body; // Mengambil password baru dan konfirmasi dari body request
+
+    // Memeriksa apakah password baru dan konfirmasi password cocok
+    if (newPassword !== confirmPassword) {
+      throw errorResponder(
+        errorTypes.INVALID_PASSWORD,
+        'Passwords do not match'
+      );
+    }
+
+    // Memanggil service untuk mengubah password
+    const success = await usersService.changePassword(
+      id,
+      oldPassword,
+      newPassword,
+      confirmPassword
+    );
+    if (!success) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to change password'
+      );
+    }
+
+    return response
+      .status(200)
+      .json({ message: 'Password successfully changed' });
+  } catch (error) {
+    return next(error);
+  }
+}
 
 module.exports = {
   getUsers,
@@ -142,4 +188,5 @@ module.exports = {
   createUser,
   updateUser,
   deleteUser,
+  changePassword,
 };

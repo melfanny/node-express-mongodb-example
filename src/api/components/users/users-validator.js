@@ -21,4 +21,18 @@ module.exports = {
       email: joi.string().email().required().label('Email'),
     },
   },
+
+  // validator buat changepassword
+  changePassword: {
+    body: {
+      oldPassword: joi.string().required().label('OldPassword'),
+      newPassword: joi.string().min(6).max(32).required().label('NewPassword'),
+      confirmPassword: joi
+        .string()
+        .min(6)
+        .max(32)
+        .required()
+        .label('Confirm Password'),
+    },
+  },
 };

@@ -22,15 +22,13 @@ async function getUser(id) {
  * @param {string} name - Name
  * @param {string} email - Email
  * @param {string} password - Hashed password
- * @param {string} password_confirm - password_confirm
  * @returns {Promise}
  */
-async function createUser(name, email, password, password_confirm) {
+async function createUser(name, email, password) {
   return User.create({
     name,
     email,
     password,
-    password_confirm,
   });
 }
 
@@ -74,6 +72,23 @@ async function isEmailTaken(email) {
   return user !== null && user !== undefined;
 }
 
+/**
+ * Update user password
+ * @param {string} id - User ID
+ * @param {string} hashedPassword - New hashed password
+ * @returns {Promise}
+ */
+async function updateUserPassword(id, hashedPassword) {
+  return User.updateOne(
+    { _id: id },
+    {
+      $set: {
+        password: hashedPassword,
+      },
+    }
+  );
+}
+
 module.exports = {
   getUsers,
   getUser,
@@ -81,4 +96,5 @@ module.exports = {
   updateUser,
   deleteUser,
   isEmailTaken,
+  updateUserPassword,
 };
